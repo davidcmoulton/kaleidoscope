@@ -1,0 +1,87 @@
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+body {
+  width: 100%;
+  background-color: rgb(0, 0, 0);
+
+}
+
+.offscreen {
+  position: absolute;
+  top: -200px;
+}
+.kaleidoscope-wrapper {
+  background-color: rgb(0, 0, 0);
+  color: rgb(255, 255, 255);
+  float: left;
+}
+
+/* Applying padding to this element breaks dom -> canvas coordinate conversion.*/
+.kaleidoscope {
+  margin: 0 auto;
+}
+
+label {
+  display: block;
+  clear: both;  
+}  
+
+label:nth-of-type(1n + 2) {
+  margin-top: 15px;
+}
+
+.settings {
+  float: left;
+  padding: 5px;
+  margin: 5px;
+  border: 1px solid rgb(233, 233, 233);
+  border-radius: 5px;
+  color: rgb(0, 0, 0);
+  background-color: rgb(255, 255, 255);
+  position: relative;
+  z-index: 10;
+  
+}
+
+.output {
+  float: left;
+}
+
+.button-wrapper {
+  width: 100%;
+  display: flex;
+  justify-content: space-around;
+}
+
+.button {
+  display: inline-block;
+  padding: 2px 8px;
+/*  margin: 40px auto 20px auto;*/
+  margin-top: 40px;
+  margin-bottom: 20px;
+  border-radius: 5px;
+  background-color: rgb(255, 255, 255);
+}
+
+.gallery {
+  float: left;
+  display: flex;
+  flex-wrap: wrap;
+  position: relative;
+  z-index: 1;
+  /* Width set in js using calc, as needs to know what width the canvas has.  */
+}
+
+.gallery-item {
+  padding: 10px;
+  list-style-type: none;
+}
+
+.gallery-image {
+  width: 200px;
+  height: 200px;
+}
