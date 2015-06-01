@@ -143,7 +143,7 @@
   }
   
   function draw(event) {
-    var canvasCoords = convertViewport2CanvasCoords({x: event.x, y: event.y}, 
+    var canvasCoords = convertViewport2CanvasCoords({x: event.clientX, y: event.clientY}, 
                                                     event.target),
       ctx = event.target.getContext('2d');
     if (!!ctx) {
