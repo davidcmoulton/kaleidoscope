@@ -16,14 +16,51 @@
       rotation: DEFAULTROTATION
     },
     settings = DEFAULTSETTINGS,
-    settingSizeDisplayEl = document.querySelector('#outputSize'),
-    settingSectorCountDisplayEl = document.querySelector('#outputSectorCount'),
-    controlRotationDisplayEl = document.querySelector('#outputRotation'),
+    settingSizeDisplayEl,
+    settingSectorCountDisplayEl,
+    controlRotationDisplayEl,
     currentRotation = 0,
     canvas,
     context,
     isAnimationStarted = false;
-  
+
+    /**
+     * Create element with specified attributes.
+     * 
+     * @param name Name of the element to make
+     * @param id The id to give the element
+     * @param classes Array of classes to give the element
+     * @param attrs Array of addtional attributes to give the element
+     * @param txtContent Text to insert directly inside the element
+     */
+    function makeElement(name, id, classes, attrs, txtContent) {
+      var el = null,
+        attrName = '';
+      try {
+        el = document.createElement(name); 
+      } catch (e) { /* E.g. name is not a string. */ }
+      if (!!id && typeof id === 'string') {
+        el.id = id;
+      }
+      if (!!classes && classes.length > 0) {
+        if (Array.isArray(classes)) {
+          el.classList.add(classes.join(' '));
+        } else if (typeof classes === 'string') {
+          el.classList.add(classes);
+        }
+      }
+      if (Array.isArray(attrs)) {
+        attrs.forEach(function (attr) {
+          attrName = Object.keys(attr)[0];
+          el.setAttribute(attrName, attr[attrName]);
+        });
+      }
+      if (typeof txtContent === 'string' && txtContent.length > 0) {
+        el.appendChild(document.createTextNode(txtContent));
+      }
+      return el;
+    }
+      
   function createGallery() {
     var gallery = document.createElement('OL'),
       unavailableWidth = 0,
@@ -44,26 +81,71 @@
     restoreGalleryItems(gallery);
   }
   
+  
+  function createControls(anchor) {
+    var parent = anchor instanceof HTMLElement ? anchor :
+                                                 document.querySelector('body'),
+    form = makeElement('form', 'settings', ['settings'], [ {'action': '#'} ]),
+    labelColor = makeElement('label', '', '', [{'for': 'settingColor'}], 'Colour: '),
+    inptColor = makeElement('input', 'settingColor', '', [{'type': 'color'}, {'placeholder': '#rrggbb'}]),
+    labelSize = makeElement('label', '', '', [{'for': 'settingSize'}], 'Size: '),
+    inptSize = makeElement('input', 'settingSize', '', [{'type': 'range'}, {'min': '1'}, 
+                                                         {'max': '15', 'value': '5'}]),
+    outptSize = makeElement('output', 'outputSize', 'output'),
+    labelSectors = makeElement('label', '', '', [{'for': 'settingSectorCount'}], '# Sectors: '),
+    inptSectors = makeElement('input', 'settingSectorCount', '', [{'type': 'range'}, {'min': '2'}, 
+                                                         {'max': '8', 'value': '4'}]),
+    outptSectors = makeElement('output', 'outputSectorCount', 'output'),
+    labelRotation = makeElement('label', '', '', [{'for': 'controlRotation'}], 'Rotation: '),
+    inptRotation = makeElement('input', 'controlRotation', '', [{'type': 'range'}, {'min': '-5'}, 
+                                                         {'max': '5', 'value': '0'}]),
+    outptRotation = makeElement('output', 'outputRotation', 'output'),
+    buttonWrapper1 = makeElement('div', '', ['button-wrapper']),
+    btnSnapshot = makeElement('button', 'controlSnapshot', ['button'], [], 'Snapshot'),
+    btnEraseGlry = makeElement('button', 'controlEraseGallery', ['button'], [], 'Erase gallery'),
+    buttonWrapper2 = makeElement('div', '', ['button-wrapper']),
+    btnResetStage = makeElement('button', 'controlReset', ['button'], [], 'Clear stage');
+    
+    form.appendChild(labelColor);
+    form.appendChild(inptColor);
+    form.appendChild(labelSize);
+    form.appendChild(inptSize);
+    form.appendChild(outptSize);
+    form.appendChild(labelSectors);
+    form.appendChild(inptSectors);
+    form.appendChild(outptSectors);
+    form.appendChild(labelRotation);
+    form.appendChild(inptRotation);
+    form.appendChild(outptRotation);
+    buttonWrapper1.appendChild(btnSnapshot);
+    buttonWrapper1.appendChild(btnEraseGlry);
+    form.appendChild(buttonWrapper1);
+    buttonWrapper2.appendChild(btnResetStage);
+    form.appendChild(buttonWrapper2);
+    parent.appendChild(form);
+    
+    settingSizeDisplayEl = document.querySelector('#outputSize');
+    settingSectorCountDisplayEl = document.querySelector('#outputSectorCount');
+    controlRotationDisplayEl = document.querySelector('#outputRotation');
+
+  }
+  
   // Add canvas element and a wrapping div to the DOM, returning the canvas.
   function createCanvas(document) {
     var canvas,
-      wrapper;
-    canvas = document.createElement('CANVAS');
-    canvas.id = 'kaleidoscope';
-    canvas.classList.add('kaleidoscope');
+      fallbackMsg = "This drawing toy requires canvas to be supported.",
+      wrapper = makeElement('div', '', ['kaleidoscope-wrapper']);
+    canvas = makeElement('canvas', 'kaleidoscope', ['kaleidoscope'], [
+                                                        { 'height': SIDELENGTH },
+                                                        { 'width': SIDELENGTH }],
+                                                    fallbackMsg);
     canvas.style.height = SIDELENGTH + 'px';
     canvas.style.width = SIDELENGTH + 'px';
-    canvas.setAttribute('height', SIDELENGTH + 'px');
-    canvas.setAttribute('width', SIDELENGTH + 'px');
-    
-    wrapper = document.createElement('DIV');
-    wrapper.classList.add('kaleidoscope-wrapper');
     wrapper.appendChild(canvas);
-    
     document.querySelector('body').appendChild(wrapper);
     return canvas;
   }
-  
+    
   // Facilitates saving snapshots.
   function createOffscreenCanvas() {
     var osCanvas = document.createElement('CANVAS');
@@ -334,6 +416,7 @@
     }  
   }
   
+  createControls();
   document.querySelector('.settings').
                            addEventListener('change', update, false);
   [].forEach.call(document.querySelectorAll('.button-wrapper'), function (itm) {
