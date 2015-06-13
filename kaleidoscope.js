@@ -2,7 +2,6 @@
   "use strict";
   var SIDELENGTH = window.innerHeight > window.innerWidth ? window.innerWidth :
                                                             window.innerHeight,
-
     MAXDRAWLENGTH = SIDELENGTH,
     CANVASCENTRE = MAXDRAWLENGTH / 2,
     DEFAULTMARKSIZE = 5,
@@ -10,10 +9,10 @@
     DEFAULTNUMSECTORS = 4,
     DEFAULTROTATION = 0,
     DEFAULTSETTINGS = {
-      color: DEFAULTCOLOR,
-      size: DEFAULTMARKSIZE,
-      numSectors: DEFAULTNUMSECTORS,
-      rotation: DEFAULTROTATION
+      'color': DEFAULTCOLOR,
+      'size': DEFAULTMARKSIZE,
+      'numSectors': DEFAULTNUMSECTORS,
+      'rotation': DEFAULTROTATION
     },
     settings = DEFAULTSETTINGS,
     settingSizeDisplayEl,
@@ -62,14 +61,11 @@
     }
       
   function createGallery() {
-    var gallery = document.createElement('OL'),
+    var gallery = makeElement('ol', 'gallery', ['gallery']),
       unavailableWidth = 0,
       settingsStyles = window.getComputedStyle(document.querySelector('.settings')),
-      canvasStyles = window.getComputedStyle(document.querySelector('.kaleidoscope')),
-      unavailableWidth = null;
-    gallery.id = 'gallery';
-    gallery.classList.add('gallery');
-    // Calculate width available to gallery.
+      canvasStyles = window.getComputedStyle(document.querySelector('.kaleidoscope'));
+    // Calculate used width not available to gallery.
     unavailableWidth = parseFloat(settingsStyles.width) + 
                        parseFloat(settingsStyles.marginLeft) + 
                        parseFloat(settingsStyles.marginRight) + 
@@ -81,30 +77,51 @@
     restoreGalleryItems(gallery);
   }
   
-  
+  /**
+   * Build the controls and attach them to the body, or anchor if supplied.
+   * 
+   * @param anchor The element to attach the controls to.
+   */
   function createControls(anchor) {
     var parent = anchor instanceof HTMLElement ? anchor :
                                                  document.querySelector('body'),
     form = makeElement('form', 'settings', ['settings'], [ {'action': '#'} ]),
-    labelColor = makeElement('label', '', '', [{'for': 'settingColor'}], 'Colour: '),
-    inptColor = makeElement('input', 'settingColor', '', [{'type': 'color'}, {'placeholder': '#rrggbb'}]),
+    
+    labelColor = makeElement('label', '', '', [{'for': 'settingColor'}],
+                             'Colour: '),
+    inptColor = makeElement('input', 'settingColor', '',
+                            [{'type': 'color'}, {'placeholder': '#rrggbb'}]),
+
     labelSize = makeElement('label', '', '', [{'for': 'settingSize'}], 'Size: '),
-    inptSize = makeElement('input', 'settingSize', '', [{'type': 'range'}, {'min': '1'}, 
-                                                         {'max': '15', 'value': '5'}]),
+    inptSize = makeElement('input', 'settingSize', '', [{'type': 'range'},
+                                                        {'min': '1'}, 
+                                                        {'max': '15'},
+                                                        {'value': '5'}]),
     outptSize = makeElement('output', 'outputSize', 'output'),
-    labelSectors = makeElement('label', '', '', [{'for': 'settingSectorCount'}], '# Sectors: '),
-    inptSectors = makeElement('input', 'settingSectorCount', '', [{'type': 'range'}, {'min': '2'}, 
-                                                         {'max': '8', 'value': '4'}]),
+    
+    labelSectors = makeElement('label', '', '', [{'for': 'settingSectorCount'}],
+                               '# Sectors: '),
+    inptSectors = makeElement('input', 'settingSectorCount', '',
+                              [{'type': 'range'}, {'min': '2'}, {'max': '8'}, 
+                               {'value': '4'}]),
     outptSectors = makeElement('output', 'outputSectorCount', 'output'),
-    labelRotation = makeElement('label', '', '', [{'for': 'controlRotation'}], 'Rotation: '),
-    inptRotation = makeElement('input', 'controlRotation', '', [{'type': 'range'}, {'min': '-5'}, 
-                                                         {'max': '5', 'value': '0'}]),
+        
+    labelRotation = makeElement('label', '', '', [{'for': 'controlRotation'}],
+                                'Rotation: '),
+    inptRotation = makeElement('input', 'controlRotation', '', [{'type': 'range'},
+                                                                {'min': '-5'}, 
+                                                                {'max': '5'},
+                                                                {'value': '0'}]),
     outptRotation = makeElement('output', 'outputRotation', 'output'),
+    
     buttonWrapper1 = makeElement('div', '', ['button-wrapper']),
-    btnSnapshot = makeElement('button', 'controlSnapshot', ['button'], [], 'Snapshot'),
-    btnEraseGlry = makeElement('button', 'controlEraseGallery', ['button'], [], 'Erase gallery'),
+    btnSnapshot = makeElement('button', 'controlSnapshot', ['button'], [],
+                              'Snapshot'),
+    btnEraseGlry = makeElement('button', 'controlEraseGallery', ['button'], [],
+                               'Erase gallery'),
     buttonWrapper2 = makeElement('div', '', ['button-wrapper']),
-    btnResetStage = makeElement('button', 'controlReset', ['button'], [], 'Clear stage');
+    btnResetStage = makeElement('button', 'controlReset', ['button'], [],
+                                'Clear stage');
     
     form.appendChild(labelColor);
     form.appendChild(inptColor);
@@ -127,7 +144,6 @@
     settingSizeDisplayEl = document.querySelector('#outputSize');
     settingSectorCountDisplayEl = document.querySelector('#outputSectorCount');
     controlRotationDisplayEl = document.querySelector('#outputRotation');
-
   }
   
   // Add canvas element and a wrapping div to the DOM, returning the canvas.
@@ -135,10 +151,9 @@
     var canvas,
       fallbackMsg = "This drawing toy requires canvas to be supported.",
       wrapper = makeElement('div', '', ['kaleidoscope-wrapper']);
-    canvas = makeElement('canvas', 'kaleidoscope', ['kaleidoscope'], [
-                                                        { 'height': SIDELENGTH },
-                                                        { 'width': SIDELENGTH }],
-                                                    fallbackMsg);
+    canvas = makeElement('canvas', 'kaleidoscope', ['kaleidoscope'], 
+                         [{ 'width': SIDELENGTH }, { 'height': SIDELENGTH }],
+                         fallbackMsg);
     canvas.style.height = SIDELENGTH + 'px';
     canvas.style.width = SIDELENGTH + 'px';
     wrapper.appendChild(canvas);
@@ -148,10 +163,8 @@
     
   // Facilitates saving snapshots.
   function createOffscreenCanvas() {
-    var osCanvas = document.createElement('CANVAS');
-    osCanvas.classList.add('offscreen');
-    osCanvas.width = 200;
-    osCanvas.height = 200;
+    var osCanvas = makeElement('canvas', '', ['offscreen'], [{ 'width': 200 },
+                                                             { 'height': 200 }]);
     document.querySelector('body').appendChild(osCanvas);
   }
   
@@ -203,7 +216,7 @@
     return { r: Math.sqrt(x*x+y*y), theta: Math.atan2(y,x) };
   }
 
-  // Convert cartesian coordinates to polar coordinates.
+  // Convert polar coordinates to cartesian coordinates.
   function polarToCartesian(r, theta) {
     return { x: r*Math.cos(theta), y: r*Math.sin(theta) };
   }
@@ -216,8 +229,8 @@
     return { x: circX, y: circY };
   }
 
-  // Convert coord from being relative to the centre of the stage, to being
-  // in the canvas coordinate system.
+  // Convert coord from having origin in the centre of the stage, to using the
+  // canvas coordinate system.
   function circOriginToCanvas(circX, circY) {
     var canvX = circX + CANVASCENTRE,
       canvY = circY * -1 + CANVASCENTRE;
@@ -239,7 +252,6 @@
       canvas.removeEventListener('mousemove', draw, false);
       canvas.removeEventListener('mouseup', stopDrawing, false);
       canvas.style.cursor = 'default';
-
     }
   }
 
@@ -328,16 +340,15 @@
     // TODO: Rotate snapshot the same as the current rotation to include rotation
     //  in snapshot.
     var gallery = document.querySelector('#gallery'),
-      galleryItem = document.createElement('LI'),
-      galleryImg = document.createElement('IMG'),
+      galleryItem = makeElement('li', '', ['gallery-item']),
+      galleryImg = null,
       firstItem = gallery.childNodes[0],
       osCanvas = document.querySelector('canvas.offscreen');
     // Scale kaleidoscope to 200x200 for snapshot image.
     osCanvas.getContext('2d').drawImage(stageCanvas, 0, 0, 200, 200);
-    galleryImg.src = osCanvas.toDataURL();
-    galleryImg.alt = 'Gallery image';
-    galleryImg.classList.add('gallery-image');
-    galleryItem.classList.add('gallery-item');
+    galleryImg = makeElement('img', '', ['gallery-image'],
+                             [{ 'src': osCanvas.toDataURL() },
+                              { 'alt': 'Gallery image' }]);
     galleryItem.appendChild(galleryImg);
     if (!!firstItem) {
       gallery.insertBefore(galleryItem, firstItem);
@@ -356,12 +367,9 @@
   function restoreGalleryItems(galleryEl) {
     var galleryStorage = JSON.parse(localStorage.getItem('gallery'))   || [];
     galleryStorage.forEach(function(item) {
-      var liEl = document.createElement('LI'),
-        imgEl = document.createElement('IMG');
-      liEl.classList.add('gallery-item');
-      imgEl.classList.add('gallery-image');
-      imgEl.src = item;
-      imgEl.alt = 'Gallery image';
+      var liEl = makeElement('li', '', ['gallery-item']),
+        imgEl = makeElement('img', '', ['gallery-image'],
+                            [{ 'src': item }, { 'alt': 'Gallery image' }]);
       liEl.appendChild(imgEl);
       galleryEl.appendChild(liEl);
     });
@@ -372,7 +380,7 @@
     document.querySelector('#gallery').innerHTML = '';
   }
     
-  function update (event) {
+  function update(event) {
     var target = event.target,
       targetId = target.id;
     switch(targetId) {
